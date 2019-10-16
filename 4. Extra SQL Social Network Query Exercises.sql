@@ -19,14 +19,14 @@ where ID not in (select h1.ID
                  from Highschooler as h1,Highschooler as h2,Friend as f
 				 where h1.ID = f.ID1 
                    and h2.ID = f.ID2 
-				   and h1.grade = h2.grade)
+				   and h1.grade = h2.grade);
 
 -- Question 3:
 -- What is the average number of friends per student? (Your result should be just one number.)
 select avg(friends)
 from (select count(ID2) as friends 
       from Friend 
-      group by ID1)
+      group by ID1);
 
 -- Question 4:
 -- Find the number of students who are either friends with Cassandra or are friends of friends
@@ -34,7 +34,7 @@ from (select count(ID2) as friends
 select count(distinct f1.ID1)
 from Friend as f1, Friend as f2, (select ID from Highschooler where name = 'Cassandra') as C
 where f1.ID2 = C.ID 
-   or (f1.ID1 <> C.ID and f1.ID2 = f2.ID1 and f2.ID2 = C.ID)
+   or (f1.ID1 <> C.ID and f1.ID2 = f2.ID1 and f2.ID2 = C.ID);
    
 -- if A(f1.id1) is friend of B, then f1.id2 = B
 -- if A is a friend of friend of B, then f1.id1 != B, f1.id2 = f2.id1, f2.id2 = B
@@ -46,4 +46,4 @@ from Highschooler join Friend
 on ID = ID1
 group by name, grade
 having count(ID2) = (select max(f.numf)
-					 from(select count(ID2) as numf from Friend group by ID1) as f)
+					 from(select count(ID2) as numf from Friend group by ID1) as f);

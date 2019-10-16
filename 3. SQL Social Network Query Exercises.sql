@@ -6,7 +6,7 @@
 select name
 from Highschooler
 where ID in (select ID1 from Friend
-             where ID2 in (select ID from Highschooler where name = 'Gabriel'))
+             where ID2 in (select ID from Highschooler where name = 'Gabriel'));
 
 -- Question 2:
 -- For every student who likes someone 2 or more grades younger than themselves, return that student's
@@ -15,7 +15,7 @@ select h1.name, h1.grade, h2.name, h2.grade
 from Highschooler as h1, Highschooler as h2, Likes as l
 where h1.ID = l.ID1 
   and h2.ID = l.ID2 
-  and h1.grade = h2.grade + 2
+  and h1.grade - h2.grade >= 2;
 
 -- Question 3:
 -- For every pair of students who both like each other, return the name and grade of both students. Include
@@ -50,9 +50,9 @@ where h1.ID = l1.ID1
 -- then by name within each grade.
 select name, grade
 from Highschooler
-where ID not in (select h1.ID from Highschooler as h1, Highschooler as h2,Friend as f1
-                 where h1.ID = f1.ID1 
-                   and h2.ID = f1.ID2 
+where ID not in (select h1.ID from Highschooler as h1, Highschooler as h2,Friend as f
+                 where h1.ID = f.ID1 
+                   and h2.ID = f.ID2 
                    and h1.grade <> h2.grade)
 order by grade, name
 

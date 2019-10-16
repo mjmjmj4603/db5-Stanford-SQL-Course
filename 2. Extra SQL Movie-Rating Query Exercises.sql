@@ -4,16 +4,14 @@
 -- Question 1:
 -- Find the names of all reviewers who rated Gone with the Wind.
 select distinct name
-from Reviewer join Rating using (rid)
-where mid in (select mid 
-              from movie 
-              where title = 'Gone with the Wind')
+from Reviewer join Rating join movie using (rid, mid)
+where title = 'Gone with the Wind'
 
 -- Question 2:              
 -- For any rating where the reviewer is the same as the director of the movie, 
 -- return the reviewer name, movie title, and number of stars.
 select name, title, stars
-from Rating join Reviewer using(rID) join Movie using (mID)
+from movie join reviewer join rating using (mid,rid)
 where name = director
 
 -- Question 3:
@@ -49,19 +47,18 @@ where stars in (select min(stars) from rating)
 -- Question 7:
 -- List movie titles and average ratings, from highest-rated to lowest-rated. 
 -- If two or more movies have the same average rating, list them in alphabetical order. 
-select title, avg(stars) as avgStars
+select title, avg(stars) as avg
 from Rating join Movie using(mID)
 group by mID
-order by avgStars desc, title
+order by avg desc, title
 
 -- Question 8:
 -- Find the names of all reviewers who have contributed three or more ratings. 
-(As an extra challenge, try writing the query without HAVING or without COUNT.) 
+-- (As an extra challenge, try writing the query without HAVING or without COUNT.) 
 select name
-from Reviewer
-where rID in (select rID from Rating 
-              group by rID 
-              having count(stars) > 2);
+from Reviewer join rating using (rid)
+group by rid
+having count(rID) >= 3;
 
 -- Question 9:
 -- Some directors directed more than one movie. For all such directors, 
@@ -75,39 +72,41 @@ where director in (select director from Movie
 order by director,title
 
 -- As an extra challenge, try writing the query both with and without COUNT.
-select distinct m1.title,m1.director
+select distinct m1.title, m1.director
 from Movie m1, Movie m2
 where m1.director = m2.director and m1.title <> m2.title
-order by m1.director,m1.title
+order by m1.director, m1.title
 
 -- Question 10:
 -- Find the movie(s) with the highest average rating. Return the movie title(s) and average rating. 
 -- (Hint: This query is more difficult to write in SQLite than other systems; 
 -- you might think of it as finding the highest average rating and then choosing the movie(s) with that average rating.) 
-select M.title, M.avgStars
-from (select title, avg(stars) as avgStars from Movie join Rating using(mID)
+select M.title, M.avg
+from (select title, avg(stars) as avg 
+      from Movie join Rating using(mID)
       group by mID) as M
-where M.avgStars = (select max(avgStars)
-      from (select avg(stars) as avgStars from Rating
-      group by mID))
+where M.avg = (select max(avg)
+               from (select avg(stars) as avg from Rating
+               group by mID))
 
 -- Question 11:
 -- Find the movie(s) with the lowest average rating. Return the movie title(s) and average rating. 
 -- (Hint: This query may be more difficult to write in SQLite than other systems; 
 -- you might think of it as finding the lowest average rating and then choosing the movie(s) with that average rating.) 
-select M.title, M.avgStars
-from (select title, avg(stars) as avgStars from Movie join Rating using(mID)
+select M.title, M.avg
+from (select title, avg(stars) as avg 
+      from Movie join Rating using(mID)
       group by mID) as M
-where M.avgStars = (select min(avgStars)
-      from (select avg(stars) as avgStars from Rating
-      group by mID))
+where M.avg = (select min(avg)
+               from (select avg(stars) as avg from Rating
+               group by mID))
 
 -- Question 12:
 -- For each director, return the director's name together with the title(s) of the movie(s) 
 -- they directed that received the highest rating among all of their movies, and the value of that rating. 
 -- Ignore movies whose director is NULL.
 select distinct director, title, stars
-from (movie join rating using (mid)) m
+from (movie join rating using (mid)) as m
 where stars in (select max(stars) 
                 from rating join movie using (mid) 
                 where m.director = director)

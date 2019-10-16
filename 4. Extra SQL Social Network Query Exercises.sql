@@ -8,7 +8,7 @@ select distinct h1.name, h1.grade, h2.name, h2.grade, h3.name, h3.grade
 from Highschooler as h1, Highschooler as h2, Highschooler as h3, Likes as l1, Likes as l2
 where h1.ID = l1.ID1 and h2.ID = l1.ID2 
   and h2.ID = l2.ID1 and h3.ID = l2.ID2
-  and h1.ID <> l2.ID2
+  and h1.ID <> h3.ID
 
 -- Question 2:
 -- Find those students for whom all of their friends are in different grades from themselves. Return the students' names
@@ -16,15 +16,17 @@ where h1.ID = l1.ID1 and h2.ID = l1.ID2
 select name, grade
 from Highschooler
 where ID not in (select h1.ID 
-                 from Highschooler as h1,Highschooler as h2,Friend as f1
-                 where h1.ID = f1.ID1 
-                   and h2.ID = f1.ID2 
+                 from Highschooler as h1,Highschooler as h2,Friend as f
+				 where h1.ID = f.ID1 
+                   and h2.ID = f.ID2 
 				   and h1.grade = h2.grade)
 
 -- Question 3:
 -- What is the average number of friends per student? (Your result should be just one number.)
 select avg(friends)
-from (select count(ID2) as friends from Friend group by ID1)
+from (select count(ID2) as friends 
+      from Friend 
+      group by ID1)
 
 -- Question 4:
 -- Find the number of students who are either friends with Cassandra or are friends of friends
@@ -43,5 +45,5 @@ select name, grade
 from Highschooler join Friend
 on ID = ID1
 group by name, grade
-having count(ID2) = (select max(f.numF)
-					from(select count(ID2) as numF from Friend group by ID1) as f)
+having count(ID2) = (select max(f.numf)
+					 from(select count(ID2) as numf from Friend group by ID1) as f)
